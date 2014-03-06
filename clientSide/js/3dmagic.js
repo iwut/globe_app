@@ -59,10 +59,12 @@ function init() {
 
 	// Configure renderer
 	renderer.setSize(width, height);
-	renderer.setClearColor(0xffffff, 1);
+//	renderer.setClearColor(0xffffff, 1);
 	container.appendChild( renderer.domElement );
 
 	render();
+
+	window.addEventListener( 'resize', onWindowResize, false );
 }
 
 function createMap(width, height) {
@@ -89,3 +91,10 @@ function render() {
 	renderer.render(scene, camera);
 }
 
+function onWindowResize() {
+
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+
+	renderer.setSize( window.innerWidth, window.innerHeight );
+}
