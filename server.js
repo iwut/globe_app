@@ -2,11 +2,19 @@ var
 http = require('http'),
 path = require('path'),
 fs = require('fs');
+
+var httpport = 3003;
+var wsport = 3004;
+
+
  
 server = http.createServer(requestHandler);
-server.listen(3000);
+server.listen(httpport);
 
-console.log('Server listening on port ' + server.address().port);
+console.log('HTTP Server listening on port ' + server.address().port);
+
+ws = require('./websocketExtension.js');
+ws.startWebSocketServer(wsport);
 
 function requestHandler(req, res) {
     var localFolder = __dirname + '/clientSide/';
