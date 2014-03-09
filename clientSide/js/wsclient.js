@@ -1,38 +1,50 @@
 var socket;
 
-function callWebSocket() {
+function callWebSocket(onConnectionFunc) {
 
 	socket = new WebSocket("ws://localhost:3004");
 
-    socket.onopen = function () {
-    	alert("Hello, Connected To WS server");
-    	$( "#btn" ).attr('disabled', false);
-    };
+    socket.onopen = onConnectionFunc();
 	
 	socket.onmessage = function (e) {
-		alert("The message received is : " + e.data);
+		//alert("The message received is : " + e.data);
 	};
             
     socket.onerror = function (e) {
-    	alert("An error occured while connecting... " + e.data);
+    	//alert("An error occured while connecting... " + e.data);
     };
 
     socket.onclose = function () {
-    	alert("hello.. The connection has been closed");
+    	//alert("hello.. The connection has been closed");
     };
 }
 
-function sendMessage(){
-	if('null' != socket){
-		if(socket.readyState == 1){
-			socket.send($("#msg").val());
-		}
-		else{
-			console.log('Socket has been closed! :(');
-		}	
-	}
-	else{
-		console.log('Socket has not been connected. Please connect!');
-	}
-	
+
+function sendMessage(message){
+    // Wait until the state of the socket is not ready and send the message when it is...
+    waitForSocketConnection(function(){
+        socket.send(message);
+    });
+}
+
+// Make the function wait until the connection is made...
+function waitForSocketConnection(callback){
+    setTimeout(
+        function () {
+            if (socket.readyState === 1) {
+                if(callback != null){
+                    callback();
+                }
+                return;
+
+            } else {
+                waitForSocketConnection(socket);
+            }
+
+        }, 5); // wait 5 milisecond for the connection...
+}
+
+
+function sendJSON(object){
+	socket.send(JSON.stringify(object));
 }

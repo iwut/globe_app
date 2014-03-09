@@ -1,5 +1,5 @@
 module.exports = {
-  
+  var first = true;  
   startWebSocketServer : function(wsport){
 
     var WebSocketServer = require('ws').Server, 
@@ -10,7 +10,11 @@ module.exports = {
     wss.on('connection', function(ws) {
       
       ws.on('message', function(message) {
-        console.log('received: %s', message);
+        if(first){
+          console.log('received: %s', message);
+        }else{
+          console.log('JSON: ' + JSON.parse(message));
+        }
       });
       ws.send('hello from server');
 
