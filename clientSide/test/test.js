@@ -21,18 +21,6 @@ var container;
 
 var map;
 var earth;
-var EARTH_RADIUS = 0.5;
-
-var pinMaterial;
-
-var homeVector;
-
-var visitsPositions = [];
-
-var visitsDistances = [];
-var totalDistance;
-
-var clicks;
 
 init();
 animate();
@@ -46,11 +34,6 @@ animate();
 function init() {
 	container = document.getElementById('canvas');
 	document.body.appendChild(container);
-
-
-	totalDistance = 0;
-	info = document.getElementById('info');
-	info.innerHTML = 'Total distance traveled: ' + totalDistance;
 
 	// Initiation
 	scene = new THREE.Scene();
@@ -71,23 +54,25 @@ function init() {
 	controls.dragToLook = true;
 	controls.autoForward = false;
 
-	camera.position.z = 2;
 
 
+	var PI2 = Math.PI * 2;
+	particleMaterial = new THREE.SpriteCanvasMaterial( {
 
-	//var PI2 = Math.PI * 2;
-	pinMaterial = new THREE.SpriteMaterial( {
-		color: 'red'
+		color: 0x000000,
+		program: function ( context ) {
+
+			context.beginPath();
+			context.arc( 0, 0, 0.5, 0, PI2, true );
+			context.fill();
+
+		}
+
 	} );
 
-	homeMaterial = new THREE.SpriteMaterial( {
-		color: 'green'
-	} );
 
 	//map = createMap(40, 40);
 	earth = createEarth();
-
-	clicks = 0;
 
 
 
@@ -104,8 +89,7 @@ function init() {
 }
 
 function createEarth() {
-
-	var sphere = new THREE.SphereGeometry(EARTH_RADIUS, 120, 120);
+	var sphere = new THREE.SphereGeometry(0.5, 120, 120);
 	// var texture = new THREE.MeshPhongMaterial( { 
 	// 	map: THREE.ImageUtils.loadTexture('images/earthmap1k.jpg'),
 	// 	bumpMap : THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
@@ -117,7 +101,7 @@ function createEarth() {
 	var texture = new THREE.MeshNormalMaterial();
 
 	var earth = new THREE.Mesh(sphere, texture);
-	//earth.position.z = -2;
+	earth.position.z = -2;
 	scene.add(earth);
 
 	objects.push(earth);
@@ -125,25 +109,27 @@ function createEarth() {
 	return earth;
 }
 
-function calculateGreatCircleDistance(first, second) {
-	var deltaX = first.x - second.x;
-	var deltaY = first.y - second.y;
-	var deltaZ = first.z - second.z;
-	var xSquared = deltaX * deltaX;
-	var ySquared = deltaY * deltaY;
-	var zSquared = deltaZ * deltaZ;
 
-	var w = Math.sqrt(xSquared + ySquared + zSquared);
 
-	var arc = 2*EARTH_RADIUS*Math.asin(w/(2*EARTH_RADIUS));
+function createMap(width, height) {
+	var plane = new THREE.PlaneGeometry(width, height);
+	var material = new THREE.MeshNormalMaterial();
 
-	return arc;
+	var mesh = new THREE.Mesh(plane, material);
+
+	mesh.position.z = -100;
+
+	objects.push(mesh);
+
+	scene.add(mesh);
+
+	return mesh;
 }
 
 function animate() {
 	var delta = clock.getDelta();
 
-	//earth.rotation.y += 0.001;
+	earth.rotation.y += 0.001;
 	//earth.rotation.x += 0.001
 
 	controls.update(delta);
@@ -163,7 +149,6 @@ function onWindowResize() {
 }
 
 function onDocumentMouseDown(event) {
-
 	event.preventDefault();
 
 	var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
@@ -171,38 +156,22 @@ function onDocumentMouseDown(event) {
 
 	var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 
-	var test = objects;
-	var intersects = raycaster.intersectObjects( objects );
+	var tmp = map;
+	var intersects = raycaster.intersectObjects( objects, true );
 
 	if ( intersects.length > 0 ) {
 		var intersect = intersects[0];
+		var intersectPoint = intersect.point;
 
-		var pinSize = .001;
+		
 
-		var material;
-		if (clicks === 0) {
-			homeVector = intersect.point;
-			material = homeMaterial;
+		var material = new THREE.MeshPhongMaterial( { ambient: 0x050505, color: 'red', specular: 0x555555, shininess: 30 } ); 
+		
+		var particle = new THREE.Mesh(new THREE.SphereGeometry(.001, 10, 10), material);
+		particle.position = intersectPoint;
+		particle.scale.x = particle.scale.y = 16;
+		scene.add( particle );
 
-		} else {
-			material = pinMaterial;
-			var distance = calculateGreatCircleDistance(homeVector, intersect.point);
-			totalDistance += distance;
-			info.innerHTML = 'Total distance traveled: ' + totalDistance;
-			visitsDistances.push(distance);
-
-		}
-			clicks++;
-
-		var pin = new THREE.Sprite(material);
-
-		pin.position = intersect.point;
-		visitsPositions.push(pin.position);
-		pin.scale.x = pin.scale.y = 10*pinSize;
-		scene.add( pin );
 	}
+
 }
-
-
-
-
