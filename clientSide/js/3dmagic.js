@@ -19,34 +19,27 @@ var clock = new THREE.Clock();
 var objects = new Array();
 var container;
 
-var map;
 var earth;
 var EARTH_RADIUS = 0.5;
 
 var pinMaterial;
 
-var homeVector;
+var homeVector = null;
 
 var visitsPositions = [];
 
 var visitsDistances = [];
 var totalDistance;
 
-var clicks;
+var convertDistance = 8210.92553467;
+
+
 
 init();
 animate();
 
-
-
-
-
-
-
 function init() {
 	container = document.getElementById('canvas');
-	document.body.appendChild(container);
-
 
 	totalDistance = 0;
 	info = document.getElementById('info');
@@ -59,7 +52,9 @@ function init() {
 	controls = new THREE.FlyControls(camera);
 	projector = new THREE.Projector();
 
-	var light = new THREE.DirectionalLight(0xffffff);
+	//var light = new THREE.DirectionalLight(0xffffff);
+	//var light = new THREE.PointLight( 0xffffff, 1, 100 );
+	var light = new THREE.AmbientLight(0xffffff);
 
 	// Configurigation
 	light.position.set(-5, -5, 10).normalize;
@@ -81,10 +76,9 @@ function init() {
 	} );
 
 	homeMaterial = new THREE.SpriteMaterial( {
-		color: 'green'
+		color: 0x9933FF
 	} );
 
-	//map = createMap(40, 40);
 	earth = createEarth();
 
 	clicks = 0;
@@ -94,27 +88,27 @@ function init() {
 
 	// Configure renderer
 	renderer.setSize(width, height);
-	renderer.setClearColor(0xffffff, 1);
+	renderer.setClearColor('black', 1);
 	container.appendChild( renderer.domElement );
 
 	render();
 
-	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	container.addEventListener( 'mousedown', onDocumentMouseDown, false );
 	window.addEventListener( 'resize', onWindowResize, false );
 }
 
 function createEarth() {
 
 	var sphere = new THREE.SphereGeometry(EARTH_RADIUS, 120, 120);
-	// var texture = new THREE.MeshPhongMaterial( { 
-	// 	map: THREE.ImageUtils.loadTexture('images/earthmap1k.jpg'),
-	// 	bumpMap : THREE.ImageUtils.loadTexture('images/earthbump1k.jpg'),
-	// 	bumpScale : 0.05,
-	// 	specularMap : THREE.ImageUtils.loadTexture('images/earthspec1k.jpg'),
-	// 	specular : new THREE.Color('grey')
-	// } );
+	var texture = new THREE.MeshPhongMaterial( { 
+		map: THREE.ImageUtils.loadTexture('../resources/earthmap1k.jpg'),
+		bumpMap : THREE.ImageUtils.loadTexture('../resources/earthbump1k.jpg'),
+		bumpScale : 0.05,
+		specularMap : THREE.ImageUtils.loadTexture('../resources/earthspec1k.jpg'),
+		specular : new THREE.Color('grey')
+	} );
 
-	var texture = new THREE.MeshNormalMaterial();
+	//var texture = new THREE.MeshNormalMaterial();
 
 	var earth = new THREE.Mesh(sphere, texture);
 	//earth.position.z = -2;
@@ -180,7 +174,7 @@ function onDocumentMouseDown(event) {
 		var pinSize = .001;
 
 		var material;
-		if (clicks === 0) {
+		if (homeVector == null) {
 			homeVector = intersect.point;
 			material = homeMaterial;
 
@@ -192,12 +186,12 @@ function onDocumentMouseDown(event) {
 			visitsDistances.push(distance);
 
 		}
-			clicks++;
+			
 
 		var pin = new THREE.Sprite(material);
 
 		pin.position = intersect.point;
-		visitsPositions.push(pin.position);
+		visitsPositions.push(pin);
 		pin.scale.x = pin.scale.y = 10*pinSize;
 		scene.add( pin );
 	}
