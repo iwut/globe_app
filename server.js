@@ -3,8 +3,8 @@ http = require('http'),
 path = require('path'),
 fs = require('fs');
 
-var httpport = 3003;
-var wsport = 3004;
+var httpport = 3001;
+var wsport = 3002;
 
 
  
@@ -14,7 +14,22 @@ server.listen(httpport);
 console.log('HTTP Server listening on port ' + server.address().port);
 
 ws = require('./websocketExtension.js');
+
+
+
 ws.startWebSocketServer(wsport);
+
+
+
+mdb = require('./mongodbtest.js');
+
+
+console.log("Starting test...");
+mdb.connectDb(function(){
+    mdb.tests();
+    }
+);
+console.log("Test finished.");
 
 function requestHandler(req, res) {
     var localFolder = __dirname + '/clientSide/';

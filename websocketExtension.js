@@ -1,5 +1,6 @@
 module.exports = {
-  var first = true;  
+  first : true,
+
   startWebSocketServer : function(wsport){
 
     var WebSocketServer = require('ws').Server, 
