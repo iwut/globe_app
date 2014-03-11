@@ -21,6 +21,8 @@ var EarthMapModel = function (user) {
 	var pinMaterial;
 	this.EARTH_RADIUS = 0.5;
 
+	var tmpObject;
+
 
 
 	this.setUserId = function(id) {
@@ -52,9 +54,22 @@ var EarthMapModel = function (user) {
 		return visits;
 	}
 
-	this.addVisit = function(visit) {
-		visits.push(visit);
+	this.addVisit = function(placeName, visit) {
+			visits.push({
+				name: placeName,
+				visit: visit
+			});
+		//visits.push(visit);
 		notifyObservers("addVisit");
+	}
+
+	this.removeVisit = function(position) {
+		if ( ~position ) {
+			tmpObject = visits.splice(position, 1);
+		}
+		
+		notifyObservers("removeVisit");
+
 	}
 
 
@@ -111,6 +126,10 @@ var EarthMapModel = function (user) {
 		notifyObservers("addObject");
 	}
 
+	this.getTmpObject = function() {
+		return tmpObject;
+	}
+
 
 	var setHomeMaterial = function(arg) {
 		homeMaterial = arg;
@@ -131,6 +150,7 @@ var EarthMapModel = function (user) {
 		return pinMaterial;
 	}
 
+	
 
 
 

@@ -55,7 +55,15 @@ var TravelLogView = function(container, model) {
 			addToScene();
 		} else if (arg == "totalDistanceUpdate") {
 			updateInfo();
+		} else if (arg == "removeVisit") {
+			removeVisit();
 		}
+	}
+
+	function removeVisit() {
+		var tmp = model.getTmpObject();
+		var lkj = tmp[0].visit;
+		scene.remove(lkj);
 	}
 
 	function updateInfo() {
@@ -72,10 +80,11 @@ var TravelLogView = function(container, model) {
 			var tmp = $('#visits');
 			tmp.find('option').remove()
 		for (var i = 0;i < visits.length; i++) {
-			tmp.append('<option value=1>Visit</option>')
+			tmp.append('<option value=1>' + visits[i].name + '</option>')
 		};
 
-		//$("#visits").append('<option value=1>Visit 1</option>');
+
+		
 	}
 
 	function init() {
@@ -99,7 +108,7 @@ var TravelLogView = function(container, model) {
 		// Add old visits
 		for (var i = 0; i < visits.length; i++) {
 			var pin = visits[i];
-			scene.add(pin);
+			scene.add(pin.visit);
 		};
 
 		camera.position.z = 2;

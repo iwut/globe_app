@@ -12,17 +12,7 @@ var homeMaterial = new THREE.SpriteMaterial( {
 var posX;
 var posY;
 
-// $('#info').click(function(e) {
-//    e.stopPropagation(); // STOP
-// });
-
-
-
 $('#canvas').mousedown(function(event) {
-	// if ($(event.target).is('select')) {
-	// 	event.preventDefault();
-	// 	return;
-	// }
 	posX = ( event.clientX / window.innerWidth ) * 2 - 1;
 	posY = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }).mouseup(function(event) {
@@ -48,8 +38,23 @@ $("#visits").click(function(){
 
 });
 
-function onMouseDown(event) {
+	$('#delete').click(function () {
+		if (model.getVisits().length == 1) {
+			alert("Cannot delete hometown");
+			return;
+		}
+		var index = $('#visits')[0].selectedIndex;
+		$('#visits :selected').remove(); 
+		model.removeVisit(index);
+	})
 
+
+function onMouseDown(event) {
+	//$('#dialog').dialog('open');
+	//alert($(location.search).attr('href'));
+	
+	//var x = prompt('Enter name of place')
+	
 	var hej = view.canvas;
 	var hoj = view.infoBox;
 
@@ -68,6 +73,10 @@ function onMouseDown(event) {
 	var intersects = raycaster.intersectObject( earth );
 
 	if ( intersects.length > 0 ) {
+		var placeName = prompt("Enter name of the place you have visited");
+		if (placeName == null) {
+			return;
+		}
 		var intersect = intersects[0];
 
 		var pinSize = .001;
@@ -83,8 +92,7 @@ function onMouseDown(event) {
 				var distance = calculateGreatCircleDistance(model.getHomePosition(), intersect.point);
 				totalDistance += distance;
 				model.setTotalDistance(totalDistance);
-				//info.innerHTML = 'Total distance traveled: ' + totalDistance;
-			//	visitsDistances.push(distance);
+
 			model.addDistance(distance);
 
 		}
@@ -92,10 +100,11 @@ function onMouseDown(event) {
 		var pin = new THREE.Sprite(material);
 
 		pin.position = intersect.point;
-		model.addVisit(pin);
+		model.addVisit(placeName, pin);
 			//visitsPositions.push(pin.position);
-			pin.scale.x = pin.scale.y = 10*pinSize;
-			model.addToScene( pin );
+		pin.scale.x = pin.scale.y = 10*pinSize;
+		model.addToScene( pin );
+
 		}
 	}
 

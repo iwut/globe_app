@@ -63,15 +63,26 @@
 
 
 #info select {
+	line-height: 15%;
+	float: left;
     display: inline-block;
     padding: 4px 3px 5px 5px;
-    width: 150px;
+    width: 75%;
     outline: none;
     color: #74646e;
     border: 1px solid #C8BFC4;
     border-radius: 4px;
     box-shadow: inset 1px 1px 2px #ddd8dc;
     background-color: #fff;        
+    z-index: 200;
+}
+
+#delete {
+	line-height: 15%;
+	float: right;
+	width: 24%;
+	height: 15%;
+
 }
 
 
