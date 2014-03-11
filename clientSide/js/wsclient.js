@@ -39,6 +39,27 @@ function sendLogin(login, pw){
     });   
 }
 
+function createUser(){
+    waitForSocketConnection(function(){
+        //pw = md5(pw);
+        socket.send(JSON.stringify({type:'signup',username: login, password: pw}));
+    });  
+}
+
+function getMapObj(){
+    waitForSocketConnection(function(){
+        //pw = md5(pw);
+        socket.send(JSON.stringify({type:'signup',username: login, password: pw}));
+    });  
+}
+
+function sendMapObjUpdate(object){
+    waitForSocketConnection(function(){
+        //pw = md5(pw);
+        socket.send(JSON.stringify({type:'signup',username: login, password: pw}));
+    });  
+}
+
 // Make the function wait until the connection is made...
 function waitForSocketConnection(callback){
     setTimeout(
