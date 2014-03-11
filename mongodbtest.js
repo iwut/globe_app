@@ -84,7 +84,7 @@ userobject{
 				);
 			return obj;
 
-		}
+		},
 
 
 
@@ -209,9 +209,9 @@ userobject{
   				var collection = db.collection('userdata');
   				collection.update({sessionid:object.sessionid}, {
   					$set:{
-  						pinobject = object.pinobject;
-						};
-  					}
+  						pinobject : object.pinobject
+						}
+  					
   				}, function(err, result) {
   					console.log("update done.");
     				callback();
@@ -236,13 +236,13 @@ userobject{
   				if(err) { return console.dir(err); }
 
   				var collection = db.collection('userdata');
-    			collection.findOne({username:sessionidvar}, function(err, item) {	
+    			collection.findOne({username:userobject.username}, function(err, item) {	
     				if(typeof item === 'undefined'|| item==null){
     					//item = {};
    						//console.log("'" + object.username + "/" + object.password + "' was undefined");
 						//item.username = 'null';
 						console.log("no user existed! :)");
-						collection.insert(newuser), {w:1}, function(err, result){
+						collection.insert(newuser, {w:1}, function(err, result){
 								callback({exists:false});
 						});
 
@@ -313,8 +313,7 @@ userobject{
 		},
 
 
-
-
+		
 		tests : function(){
 		this.insertPin(this.createpin(0,1,"TAG","first pin!"), function(){});
 		this.insertPin(this.createpin(2,3,"TAG","second pin!"), function(){});

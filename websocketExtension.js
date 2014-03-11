@@ -10,9 +10,23 @@ handleOnMessage = function(object,ws){
       validateLoginWrapper(object, function(loginObj){
         ws.send(JSON.stringify(loginObj));
       });
+    }else if(object.type=="signup"){
+      signupWrapper(object, function(signupResponse){
+        ws.send(JSON.stringify(signupResponse));
+      });
     }else{
-      console.log("received reduntant message");
+      console.log("received redundant message");
     }
+  };
+
+  signupWrapper = function(object, callback){
+    //signupResponse
+    mdb = require('./mongodbtest.js');
+    mdb.connectDb(function(){
+      mdb.signup(object, function(signupResponse){
+          callback(signupResponse);
+      });
+    });
   };
 
   validateLoginWrapper = function(object, callback){

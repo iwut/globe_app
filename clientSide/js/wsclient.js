@@ -1,25 +1,18 @@
 var socket;
 
-function callWebSocket(onConnectionFunc) {
+function callWebSocket(onConnectionFunc, onReceive) {
 
 	socket = new WebSocket("ws://localhost:3002");
 
-    socket.onopen = onConnectionFunc();
+    socket.onopen = onConnectionFunc;
 	
-	socket.onmessage = function (e) {
-        var sessionid = JSON.parse(e.data).sessionid;
-        if(sessionid>(-1)){
-            window.location = "./map.html&="+sessionid;
-        }else{
-            alert('Login Failed!\nTry another login.\nSessionid was: '+sessionid);
-        }
-	};
+	socket.onmessage = onReceive;
             
     socket.onerror = function (e) {
     	//alert("An error occured while connecting... " + e.data);
     };
 
-    socket.onclose = function () {
+    socket.onclose = function (e) {
     	//alert("hello.. The connection has been closed");
     };
 }
@@ -39,10 +32,16 @@ function sendLogin(login, pw){
     });   
 }
 
-function createUser(){
+function createUser(usr, pw, em, no){
     waitForSocketConnection(function(){
         //pw = md5(pw);
-        socket.send(JSON.stringify({type:'signup',username: login, password: pw}));
+        socket.send(JSON.stringify({
+            type:'signup',
+            username: usr, 
+            password: pw,
+            email: em,
+            telephone: no
+        }));
     });  
 }
 
