@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 $(function() {
 
 	var model = new EarthMapModel();
@@ -5,3 +6,6 @@ $(function() {
 	var travelLogView = new TravelLogView($('document'), model);
 	var travelLogController = new TravelLogController(travelLogView, model);
 })
+=======
+var app = angular.module('MapApp',[]);
+>>>>>>> websockets
