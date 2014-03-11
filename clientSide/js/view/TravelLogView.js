@@ -59,12 +59,23 @@ var TravelLogView = function(container, model) {
 	}
 
 	function updateInfo() {
-		this.info.innerHTML = 'Total distance traveled: ' + Math.round(100* model.getTotalDistance() * convertDistance)/100 + ' km.';
+		$('#totalDistance').text('Total distance traveled: ' + Math.round(100* model.getTotalDistance() * convertDistance)/100 + ' km.');
 	}
 
 	function addToScene() {
 		var object = model.getLastAddedObject();
 		scene.add(object);
+		visits = model.getVisits();
+		distances = model.getDistances();
+		totalDistance = model.getTotalDistance();
+
+			var tmp = $('#visits');
+			tmp.find('option').remove()
+		for (var i = 0;i < visits.length; i++) {
+			tmp.append('<option value=1>Visit</option>')
+		};
+
+		//$("#visits").append('<option value=1>Visit 1</option>');
 	}
 
 	function init() {
@@ -75,7 +86,7 @@ var TravelLogView = function(container, model) {
 		controls = new THREE.OrbitControls(camera);
 		controls.addEventListener( 'change', render );
 
-		this.info.innerHTML = 'Total distance traveled: ' + model.getTotalDistance() * convertDistance + ' km.';
+		updateInfo();
 		
 		projector = new THREE.Projector();
 

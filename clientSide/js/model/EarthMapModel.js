@@ -1,12 +1,20 @@
 // EarthMapModel object constructor
-var EarthMapModel = function () {
+var EarthMapModel = function (user) {
 
 	var userId;
+
+
+	// var homePosition = user.homePosition;
+	// var visits = user.;
+	// var distances = [];
+	// var totalDistance = 0;	
+
 
 	var homePosition = null;
 	var visits = [];
 	var distances = [];
 	var totalDistance = 0;
+	
 
 	var objects = [];
 	var homeMaterial;

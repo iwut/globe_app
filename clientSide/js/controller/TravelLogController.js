@@ -12,7 +12,17 @@ var homeMaterial = new THREE.SpriteMaterial( {
 var posX;
 var posY;
 
+// $('#info').click(function(e) {
+//    e.stopPropagation(); // STOP
+// });
+
+
+
 $('#canvas').mousedown(function(event) {
+	// if ($(event.target).is('select')) {
+	// 	event.preventDefault();
+	// 	return;
+	// }
 	posX = ( event.clientX / window.innerWidth ) * 2 - 1;
 	posY = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }).mouseup(function(event) {
@@ -23,6 +33,19 @@ $('#canvas').mousedown(function(event) {
 	if (posX === posX2 && posY === posY2) {
 		onMouseDown(event);
 	}
+});
+
+$("#visits").click(function(){
+    var size = $('#visits option').size();
+    if(size!=$("#visits").prop('size'))
+       {
+       $("#visits").prop('size',size);
+}
+    else
+    {
+        $("#visits").prop('size',1);
+    }
+
 });
 
 function onMouseDown(event) {
