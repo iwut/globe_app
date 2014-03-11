@@ -182,6 +182,7 @@ userobject{
 			console.log("get Map Resources , " + sessionidvar);
 			var mongoC = this.MongoClient;
 
+<<<<<<< HEAD
 			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
   				if(err) { return console.dir(err); }
 
@@ -259,6 +260,8 @@ userobject{
 		},
 
 
+=======
+>>>>>>> FETCH_HEAD
 		connectDb : function(callback){
 			this.MongoClient = require('mongodb').MongoClient;
 			console.log("connecting db...");
