@@ -58,11 +58,40 @@ module.exports = {
 			this.tag = tag;
 			this.string = string;
 
-			console.log("created pin!");
-
-			//module.exports.pinincrement = module.exports.pinincrement + 1;
-					
+			console.log("created pin!");	
 		},
+
+		createuser: function(username, password){
+
+
+		var user = function(username, password, sessionid, userdata){
+			this.username = username;
+			this.password = password;
+			this.sessionid = sessionid;
+			this.userdata = userdata;
+		};
+
+			var newuser = new user(
+					username,
+					password,
+					0,
+					""
+				);
+			return newuser;
+		},
+
+
+		insertuser : function(mongoC, user, callback){
+			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
+  				if(err) { return console.dir(err); }
+
+  				var collection = db.collection('users');
+  				collection.insert(user, function(err, result) {
+  					console.log("inserting: " + JSON.stringify(user));
+  				});
+			});
+		},
+
 
 
 		createpin : function(latitude,longitude,tag,string){
@@ -79,16 +108,75 @@ module.exports = {
 
 
 
+		validateLogin : function(object, callback){
+			var insertuser = this.insertuser;
+			var createuser = this.createuser;
+			var mongoC = this.MongoClient;
+			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
+  				if(err) { return console.dir(err); }
+
+
+  				var collection = db.collection('users');
+    			collection.findOne({username:object.username, password:object.password}, function(err, item) {	
+    				if(typeof item === 'undefined'|| item==null){
+    					item = {};
+   						console.log("'" + object.username + "/" + object.password + "' was undefined");
+						item.sessionid = -1;
+						insertuser(mongoC,createuser(object.username, object.password),function(){});
+   					};
+    				//set new sessionid into the db
+    				callback({sessionid: item.sessionid});
+    			});
+			});
+			
+		},
 
 
 
 
+I DATABASEN:
+
+"USERS"
+userobject{
+	username
+	password
+	sessionid
+}
+
+"PINS"
+pinobject{
+	username
+	homeposition
+	visits
+	distances
+	totalDistance
+}
 
 
 
+DET SOM HÄMTAS: nyckel:sessionid
+
+userobject{
+	username
+	sessionid
+	pinobject{
+				homeposition
+				visits
+				distances
+				totalDistance
+	}
+}
 
 
+		getMapResources : function(sessionid){
+			
+			return mapResObject;
+		}
 
+		updateMapResources : function(object, callback){
+
+			callback();
+		}
 
 
 		connectDb : function(callback){

@@ -3,6 +3,28 @@ module.exports = {
 
   startWebSocketServer : function(wsport){
 
+
+
+handleOnMessage = function(object,ws){
+    if(object.type=="login"){
+      validateLoginWrapper(object, function(loginObj){
+        ws.send(JSON.stringify(loginObj));
+      });
+    }else{
+      console.log("received reduntant message");
+    }
+  };
+
+  validateLoginWrapper = function(object, callback){
+    mdb = require('./mongodbtest.js');
+    mdb.connectDb(function(){
+      mdb.validateLogin(object, function(loginObj){
+          callback(loginObj);
+      });
+    });
+  };
+
+
     var WebSocketServer = require('ws').Server, 
       wss = new WebSocketServer({port: wsport});
     
@@ -11,17 +33,13 @@ module.exports = {
     wss.on('connection', function(ws) {
       
       ws.on('message', function(message) {
-        if(first){
-          console.log('received: %s', message);
-        }else{
-          console.log('JSON: ' + JSON.parse(message));
-        }
+        console.log('y: ' + message);
+        var obj = JSON.parse(message);
+        console.log('JSON- type: ' + obj.objtype + ', message: ' + obj.objmess);
+        handleOnMessage(obj,ws);
       });
-      ws.send('hello from server');
+      //ws.send('hello from server');
 
     });
-
-
-
-  }
+  },
 }

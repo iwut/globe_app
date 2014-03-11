@@ -23,13 +23,14 @@ ws.startWebSocketServer(wsport);
 
 mdb = require('./mongodbtest.js');
 
-
+/*
 console.log("Starting test...");
 mdb.connectDb(function(){
     mdb.tests();
     }
 );
 console.log("Test finished.");
+*/
 
 function requestHandler(req, res) {
     var localFolder = __dirname + '/clientSide/';
