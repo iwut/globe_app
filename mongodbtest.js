@@ -72,7 +72,7 @@ userobject{
 				this.password = password1;
 				this.email = email1;
 				this.telephone = telephone1;
-				this.sessionid = 0;
+				this.sessionid = 1;
 				this.pinobject = new mapdata();
 			};
 
@@ -159,7 +159,7 @@ userobject{
   				if(err) { return console.dir(err); }
 
 
-  				var collection = db.collection('users');
+  				var collection = db.collection('userdata');
     			collection.findOne({username:object.username, password:object.password}, function(err, item) {	
     				if(typeof item === 'undefined'|| item==null){
     					item = {};
@@ -179,13 +179,13 @@ userobject{
 	takes session id parameter and returns result into callback function
 	*/
 		getMapResources : function(sessionidvar, callback){
-			console.log("get Map Resources , " + sessionidvar);
+			console.log("get Map Resources , " + sessionidvar.sessionid);
 			var mongoC = this.MongoClient;
 			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
   				if(err) { return console.dir(err); }
 
   				var collection = db.collection('userdata');
-    			collection.findOne({sessionid:sessionidvar}, function(err, item) {	
+    			collection.findOne({sessionid:sessionidvar.sessionid}, function(err, item) {	
     				if(typeof item === 'undefined'|| item==null){
     					item = {};
    						//console.log("'" + object.username + "/" + object.password + "' was undefined");

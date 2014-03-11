@@ -45,17 +45,18 @@ function createUser(usr, pw, em, no){
     });  
 }
 
-function getMapObj(){
+function getMapObj(sessid){
     waitForSocketConnection(function(){
         //pw = md5(pw);
-        socket.send(JSON.stringify({type:'signup',username: login, password: pw}));
+        socket.send(JSON.stringify({type:'getobj',sessionid: sessid}));
     });  
 }
 
 function sendMapObjUpdate(object){
     waitForSocketConnection(function(){
         //pw = md5(pw);
-        socket.send(JSON.stringify({type:'signup',username: login, password: pw}));
+        object.type='setobj';
+        socket.send(JSON.stringify(object));
     });  
 }
 

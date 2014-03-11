@@ -14,10 +14,40 @@ handleOnMessage = function(object,ws){
       signupWrapper(object, function(signupResponse){
         ws.send(JSON.stringify(signupResponse));
       });
+    }else if(object.type=="setobj"){
+      updateWrapper(object, function(){
+        console.log('received update.');
+      });
+    }else if(object.type=="getobj"){
+      getterWrapper(object, function(signupResponse){
+        ws.send(JSON.stringify(signupResponse));
+      });
     }else{
       console.log("received redundant message");
     }
   };
+
+
+  updateWrapper = function(object, callback){
+    mdb = require('./mongodbtest.js');
+    mdb.connectDb(function(){
+      mdb.updateMapResources(object, function(){
+          callback();
+      });
+    });
+  };
+  
+
+  getterWrapper = function(object, callback){
+    mdb = require('./mongodbtest.js');
+    mdb.connectDb(function(){
+      mdb.getMapResources(object, function(item){
+          callback(item);
+      });
+    });
+  };
+  
+
 
   signupWrapper = function(object, callback){
     //signupResponse
