@@ -133,52 +133,6 @@ module.exports = {
 
 
 
-
-I DATABASEN:
-
-"USERS"
-userobject{
-	username
-	password
-	sessionid
-}
-
-"PINS"
-pinobject{
-	username
-	homeposition
-	visits
-	distances
-	totalDistance
-}
-
-
-
-DET SOM HÄMTAS: nyckel:sessionid
-
-userobject{
-	username
-	sessionid
-	pinobject{
-				homeposition
-				visits
-				distances
-				totalDistance
-	}
-}
-
-
-		getMapResources : function(sessionid){
-			
-			return mapResObject;
-		}
-
-		updateMapResources : function(object, callback){
-
-			callback();
-		}
-
-
 		connectDb : function(callback){
 			this.MongoClient = require('mongodb').MongoClient;
 			console.log("connecting db...");
