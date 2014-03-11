@@ -72,7 +72,7 @@ userobject{
 				this.password = password1;
 				this.email = email1;
 				this.telephone = telephone1;
-				this.sessionid = 1;
+				this.sessionid = Math.floor(Math.random() * 100000000000000) + 1;
 				this.pinobject = new mapdata();
 			};
 
