@@ -1,5 +1,3 @@
-
-
 var width = window.innerWidth;
 var height = window.innerHeight;
 
@@ -7,9 +5,6 @@ var VIEW_ANGLE = 45;
 var ASPECT_RATIO = width/height;
 var NEAR = 0.1;
 var FAR = 10000;
-
-
-
 
 var camera;
 var scene;
@@ -24,15 +19,31 @@ var clock = new THREE.Clock();
 var objects = new Array();
 var container;
 
-var map;
+var earth;
+var EARTH_RADIUS = 0.5;
+
+var pinMaterial;
+
+var homeVector = null;
+
+var visitsPositions = [];
+
+var visitsDistances = [];
+var totalDistance;
+
+var convertDistance = 8210.92553467;
+
+
 
 init();
 animate();
 
 function init() {
-
 	container = document.getElementById('canvas');
-	document.body.appendChild(container);
+
+	totalDistance = 0;
+	info = document.getElementById('info');
+	info.innerHTML = 'Total distance traveled: ' + totalDistance;
 
 	// Initiation
 	scene = new THREE.Scene();
@@ -41,68 +52,93 @@ function init() {
 	controls = new THREE.FlyControls(camera);
 	projector = new THREE.Projector();
 
-	var light = new THREE.DirectionalLight(0xffffff);
+	//var light = new THREE.DirectionalLight(0xffffff);
+	//var light = new THREE.PointLight( 0xffffff, 1, 100 );
+	var light = new THREE.AmbientLight(0xffffff);
 
 	// Configurigation
 	light.position.set(-5, -5, 10).normalize;
 	scene.add(light);
 
-	controls.movementSpeed = 100;
+	controls.movementSpeed = 1;
 	controls.domElement = container;
 	controls.rollSpeed = 0.5;
 	controls.dragToLook = true;
 	controls.autoForward = false;
 
+	camera.position.z = 2;
 
 
-		var PI2 = Math.PI * 2;
-	particleMaterial = new THREE.SpriteCanvasMaterial( {
 
-		color: 0x000000,
-		program: function ( context ) {
-
-			context.beginPath();
-			context.arc( 0, 0, 0.5, 0, PI2, true );
-			context.fill();
-
-		}
-
+	//var PI2 = Math.PI * 2;
+	pinMaterial = new THREE.SpriteMaterial( {
+		color: 'red'
 	} );
 
+	homeMaterial = new THREE.SpriteMaterial( {
+		color: 0x9933FF
+	} );
 
-	map = createMap(40, 40);
+	earth = createEarth();
+
+	clicks = 0;
 
 
 
 
 	// Configure renderer
 	renderer.setSize(width, height);
-	renderer.setClearColor(0xffffff, 1);
+	renderer.setClearColor('black', 1);
 	container.appendChild( renderer.domElement );
 
 	render();
 
-	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	container.addEventListener( 'mousedown', onDocumentMouseDown, false );
 	window.addEventListener( 'resize', onWindowResize, false );
 }
 
-function createMap(width, height) {
-	var plane = new THREE.PlaneGeometry(width, height);
-	var material = new THREE.MeshNormalMaterial();
+function createEarth() {
 
-	var mesh = new THREE.Mesh(plane, material);
+	var sphere = new THREE.SphereGeometry(EARTH_RADIUS, 120, 120);
+	var texture = new THREE.MeshPhongMaterial( { 
+		map: THREE.ImageUtils.loadTexture('../resources/earthmap1k.jpg'),
+		bumpMap : THREE.ImageUtils.loadTexture('../resources/earthbump1k.jpg'),
+		bumpScale : 0.05,
+		specularMap : THREE.ImageUtils.loadTexture('../resources/earthspec1k.jpg'),
+		specular : new THREE.Color('grey')
+	} );
 
-	mesh.position.z = -100;
+	//var texture = new THREE.MeshNormalMaterial();
 
-	objects.push(mesh);
+	var earth = new THREE.Mesh(sphere, texture);
+	//earth.position.z = -2;
+	scene.add(earth);
 
-	scene.add(mesh);
+	objects.push(earth);
 
-	return mesh;
+	return earth;
+}
+
+function calculateGreatCircleDistance(first, second) {
+	var deltaX = first.x - second.x;
+	var deltaY = first.y - second.y;
+	var deltaZ = first.z - second.z;
+	var xSquared = deltaX * deltaX;
+	var ySquared = deltaY * deltaY;
+	var zSquared = deltaZ * deltaZ;
+
+	var w = Math.sqrt(xSquared + ySquared + zSquared);
+
+	var arc = 2*EARTH_RADIUS*Math.asin(w/(2*EARTH_RADIUS));
+
+	return arc;
 }
 
 function animate() {
 	var delta = clock.getDelta();
+
+	//earth.rotation.y += 0.001;
+	//earth.rotation.x += 0.001
 
 	controls.update(delta);
 	render();
@@ -121,6 +157,7 @@ function onWindowResize() {
 }
 
 function onDocumentMouseDown(event) {
+
 	event.preventDefault();
 
 	var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
@@ -128,22 +165,38 @@ function onDocumentMouseDown(event) {
 
 	var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 
-	var tmp = map;
-	var intersects = raycaster.intersectObjects( objects, true );
+	var test = objects;
+	var intersects = raycaster.intersectObjects( objects );
 
 	if ( intersects.length > 0 ) {
 		var intersect = intersects[0];
-		var intersectPoint = intersect.point;
 
-		//intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+		var pinSize = .001;
 
-		var material = new THREE.MeshPhongMaterial( { ambient: 0x050505, color: 'red', specular: 0x555555, shininess: 30 } ); 
-		
-		var particle = new THREE.Mesh(new THREE.SphereGeometry(.1, .1, .1), material);
-		particle.position = intersectPoint;
-		particle.scale.x = particle.scale.y = 16;
-		scene.add( particle );
+		var material;
+		if (homeVector == null) {
+			homeVector = intersect.point;
+			material = homeMaterial;
 
+		} else {
+			material = pinMaterial;
+			var distance = calculateGreatCircleDistance(homeVector, intersect.point);
+			totalDistance += distance;
+			info.innerHTML = 'Total distance traveled: ' + totalDistance;
+			visitsDistances.push(distance);
+
+		}
+			
+
+		var pin = new THREE.Sprite(material);
+
+		pin.position = intersect.point;
+		visitsPositions.push(pin);
+		pin.scale.x = pin.scale.y = 10*pinSize;
+		scene.add( pin );
 	}
-
 }
+
+
+
+
