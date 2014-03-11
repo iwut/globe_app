@@ -41,16 +41,56 @@ module.exports = {
 			console.log("test: " + this.varr);
 		}
 
+
+userobject{
+	username
+	password
+	email
+	telephone
+	sessionid
+	pinobject{
+				homeposition
+				visits
+				distances
+				totalDistance
+	}
+}
 */
-
-
-
-
-
-
 		MongoClient : 'undefined',
 		pinincrement : 0,
-	
+
+		createuserdata : function(username,password,email,telephone){
+			var mapdata = function(){
+				this.homeposition = {};
+				this.visits = {};
+				this.distances = {};
+				this.totalDistance = 0;
+			};
+
+			var userdata = function(username1,password1,email1,telephone1){
+				this.username = username1;
+				this.password = password1;
+				this.email = email1;
+				this.telephone = telephone1;
+				this.sessionid = 0;
+				this.pinobject = new mapdata();
+			};
+
+			var obj = new userdata(
+					username,
+					password,
+					email,
+					telephone
+				);
+			return obj;
+
+		}
+
+
+
+
+		
+	/*
 		pin : function(pinincrement,latitude,longitude,tag,string){
 			this.pinid = pinincrement;
 			this.latitude = latitude;
@@ -60,16 +100,17 @@ module.exports = {
 
 			console.log("created pin!");	
 		},
-
+*/
+/*
 		createuser: function(username, password){
 
 
-		var user = function(username, password, sessionid, userdata){
-			this.username = username;
-			this.password = password;
-			this.sessionid = sessionid;
-			this.userdata = userdata;
-		};
+			var user = function(username, password, sessionid, userdata){
+				this.username = username;
+				this.password = password;
+				this.sessionid = sessionid;
+				this.userdata = userdata;
+			};
 
 			var newuser = new user(
 					username,
@@ -79,7 +120,8 @@ module.exports = {
 				);
 			return newuser;
 		},
-
+*/
+/*
 
 		insertuser : function(mongoC, user, callback){
 			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
@@ -92,7 +134,8 @@ module.exports = {
 			});
 		},
 
-
+*/
+/*
 
 		createpin : function(latitude,longitude,tag,string){
 			this.pinincrement = this.pinincrement + 1;
@@ -106,7 +149,7 @@ module.exports = {
 			return newpin;
 		},
 
-
+*/
 
 		validateLogin : function(object, callback){
 			var insertuser = this.insertuser;
@@ -122,7 +165,7 @@ module.exports = {
     					item = {};
    						console.log("'" + object.username + "/" + object.password + "' was undefined");
 						item.sessionid = -1;
-						insertuser(mongoC,createuser(object.username, object.password),function(){});
+						//insertuser(mongoC,createuser(object.username, object.password),function(){});
    					};
     				//set new sessionid into the db
     				callback({sessionid: item.sessionid});
@@ -132,51 +175,88 @@ module.exports = {
 		},
 
 
+	/*
+	takes session id parameter and returns result into callback function
+	*/
+		getMapResources : function(sessionidvar, callback){
+			console.log("get Map Resources , " + sessionidvar);
+			var mongoC = this.MongoClient;
 
+			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
+  				if(err) { return console.dir(err); }
 
-I DATABASEN:
+  				var collection = db.collection('userdata');
+    			collection.findOne({sessionid:sessionidvar}, function(err, item) {	
+    				if(typeof item === 'undefined'|| item==null){
+    					item = {};
+   						//console.log("'" + object.username + "/" + object.password + "' was undefined");
+						item.username = 'null';
+						//insertuser(mongoC,createuser(object.username, object.password),function(){});
+   					};
+    				//set new sessionid into the db
+    				callback(item);
+    			});
+			});
+		},
 
-"USERS"
-userobject{
-	username
-	password
-	sessionid
-}
-
-"PINS"
-pinobject{
-	username
-	homeposition
-	visits
-	distances
-	totalDistance
-}
-
-
-
-DET SOM HÄMTAS: nyckel:sessionid
-
-userobject{
-	username
-	sessionid
-	pinobject{
-				homeposition
-				visits
-				distances
-				totalDistance
-	}
-}
-
-
-		getMapResources : function(sessionid){
-			
-			return mapResObject;
-		}
-
+		//takes entire data object and loads into
 		updateMapResources : function(object, callback){
+			console.log("update map resources " + JSON.stringify(object));
+			var mongoC = this.MongoClient;
 
-			callback();
-		}
+			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
+  				if(err) { return console.dir(err); }
+
+  				var collection = db.collection('userdata');
+  				collection.update({sessionid:object.sessionid}, {
+  					$set:{
+  						pinobject = object.pinobject;
+						};
+  					}
+  				}, function(err, result) {
+  					console.log("update done.");
+    				callback();
+    			});
+			});
+		},
+
+	/*
+		takes a userobject, and if the username does not already exist,
+		create a new userdata object in the collection.
+	*/
+		signup : function(userobject, callback){
+			console.log("signup: " + JSON.stringify(userobject));
+			var mongoC = this.MongoClient;
+			var newuser = this.createuserdata(
+							userobject.username,
+							userobject.password,
+							userobject.email,
+							userobject.telephone);
+
+			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
+  				if(err) { return console.dir(err); }
+
+  				var collection = db.collection('userdata');
+    			collection.findOne({username:sessionidvar}, function(err, item) {	
+    				if(typeof item === 'undefined'|| item==null){
+    					//item = {};
+   						//console.log("'" + object.username + "/" + object.password + "' was undefined");
+						//item.username = 'null';
+						console.log("no user existed! :)");
+						collection.insert(newuser), {w:1}, function(err, result){
+								callback({exists:false});
+						});
+
+						//insertuser(mongoC,createuser(object.username, object.password),function(){});
+   					}else{
+   						console.log("user already exists... :(");
+   						callback({exists:true});
+   					}
+    				//set new sessionid into the db
+    				
+    			});
+			});
+		},
 
 
 		connectDb : function(callback){
@@ -196,6 +276,15 @@ userobject{
   				//db.createCollection('test', {w:1}, function(err, collection) {});
 			});
 		},
+
+
+
+
+
+
+
+
+
 
 
 
@@ -237,18 +326,13 @@ userobject{
 		//var pinArray;
 		//console.log("v");
 		setTimeout(
-			/*
-			
-		*/
 			this.getPins(
 				function(pinArray){
-					
 					for (var i = 0; i < pinArray.length; i++) {
   						console.log("found pin: " + pinArray[i].string);
 					}
 				}
 			)
-		
 		,4000);
 
 		}
