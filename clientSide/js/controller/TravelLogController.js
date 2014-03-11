@@ -39,11 +39,11 @@ $("#visits").click(function(){
 });
 
 	$('#delete').click(function () {
-		if (model.getVisits().length == 1) {
+		var index = $('#visits')[0].selectedIndex;
+		if (index == 0) {
 			alert("Cannot delete hometown");
 			return;
 		}
-		var index = $('#visits')[0].selectedIndex;
 		$('#visits :selected').remove(); 
 		model.removeVisit(index);
 	})
