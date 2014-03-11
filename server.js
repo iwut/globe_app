@@ -2,6 +2,7 @@ var
 http = require('http'),
 path = require('path'),
 fs = require('fs');
+url = require('url');
 
 var httpport = 3001;
 var wsport = 3002;
@@ -37,9 +38,9 @@ function requestHandler(req, res) {
     var page404 = localFolder + '404.html';
 
     if(!path.basename(req.url)){
-    	finalPath = path.join(localFolder, 'index.html');
+    	finalPath = path.join(localFolder, 'login.html');
     }else{
-		finalPath = path.join(localFolder, req.url);    	
+		finalPath = path.join(localFolder, url.parse(req.url).pathname);    	
     }
     console.log(req.socket.remoteAddress + ':' + req.url);
     getFile((finalPath),res,page404);
