@@ -25,18 +25,35 @@ $('#canvas').mousedown(function(event) {
 	}
 });
 
-$("#visits").click(function(){
-    var size = $('#visits option').size();
-    if(size!=$("#visits").prop('size'))
-       {
-       $("#visits").prop('size',size);
-}
-    else
-    {
-        $("#visits").prop('size',1);
-    }
 
+
+
+$("#visits").mouseover(function(){
+	view.disableControls();
 });
+
+$("#visits").mouseout(function() {
+	view.enableControls();
+})
+
+//$("#visit")
+
+// $("#visits").click(function(){
+//     var size = $('#visits option').size();
+//     if(size!=$("#visits").prop('size'))
+//        {
+//        $("#visits").prop('size',size);
+// }
+//     else
+//     {
+//         $("#visits").prop('size',1);
+//     }
+
+// });
+
+
+
+
 
 	$('#delete').click(function () {
 		var index = $('#visits')[0].selectedIndex;
@@ -46,7 +63,10 @@ $("#visits").click(function(){
 		}
 		$('#visits :selected').remove(); 
 		model.removeVisit(index);
-	})
+		//model.removeDistance(index);
+		model.sendToDb();
+	});
+
 
 
 function onMouseDown(event) {
@@ -82,7 +102,7 @@ function onMouseDown(event) {
 		var pinSize = .001;
 
 		var material;
-		if (model.getHomePosition() == null) {
+		if (model.getHomePosition() === null) {
 			//	homeVector = intersect.point;
 			model.setHomePosition(intersect.point);
 				material = homeMaterial;// model.getHomeMaterial();
@@ -100,11 +120,12 @@ function onMouseDown(event) {
 		var pin = new THREE.Sprite(material);
 
 		pin.position = intersect.point;
-		model.addVisit(placeName, pin);
+		model.addVisit(placeName, intersect.point);
 			//visitsPositions.push(pin.position);
-		pin.scale.x = pin.scale.y = 10*pinSize;
+		pin.scale.x = pin.scale.y = pin.scale.z = 10*pinSize;
 		model.addToScene( pin );
 
+		model.sendToDb();
 		}
 	}
 

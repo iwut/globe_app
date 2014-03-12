@@ -9,9 +9,9 @@
 #info {
 	position: absolute;
 	top: 0;
-	left: 0;
-	width: 25%;
-	height: 15%;
+	right: 0;
+	width: 20%;
+	height: 99.5%;
 	padding-left: 3px;
 	padding-top: 3px;
 
@@ -26,28 +26,15 @@
 
 
 #info {
-	-moz-box-shadow:inset 0px 1px 0px 0px #fce2c1;
-	-webkit-box-shadow:inset 0px 1px 0px 0px #fce2c1;
-	box-shadow:inset 0px 1px 0px 0px #fce2c1;
+
 	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ffc477), color-stop(1, #fb9e25) );
 	background:-moz-linear-gradient( center top, #ffc477 5%, #fb9e25 100% );
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffc477', endColorstr='#fb9e25');
 	background-color:#ffc477;
-	-webkit-border-top-left-radius:20px;
-	-moz-border-radius-topleft:20px;
-	border-top-left-radius:20px;
-	-webkit-border-top-right-radius:20px;
-	-moz-border-radius-topright:20px;
-	border-top-right-radius:20px;
-	-webkit-border-bottom-right-radius:20px;
-	-moz-border-radius-bottomright:20px;
-	border-bottom-right-radius:20px;
-	-webkit-border-bottom-left-radius:20px;
-	-moz-border-radius-bottomleft:20px;
-	border-bottom-left-radius:20px;
+
 
 	text-indent:0;
-	border:1px solid #eeb44f;
+
 	display:inline-block;
 	color:#ffffff;
 	font-family:Arial;
@@ -75,13 +62,13 @@
     box-shadow: inset 1px 1px 2px #ddd8dc;
     background-color: #fff;        
     z-index: 200;
+    pointer-events: auto;
 }
 
 #delete {
-	line-height: 15%;
-	float: right;
-	width: 24%;
-	height: 15%;
+	
+	float: left;
+
 
 }
 

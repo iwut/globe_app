@@ -1,20 +1,17 @@
 // EarthMapModel object constructor
-var EarthMapModel = function (user) {
+var EarthMapModel = function (user, updatefunc) {
 
-	var userId;
+	var sendMapObjectUpdate = updatefunc;
+	var userObject = user;
 
+	//sendToDbTest();
 
-	var homePosition = user.homeposition;
-	var visits = user.visits;
-	var distances = user.distances;
-	var totalDistance = user.totalDistance;
+	var mapObject = userObject.pinobject;
 
-
-	// var homePosition = null;
-	// var visits = [];
-	// var distances = [];
-	// var totalDistance = 0;
-	
+	//var homePosition = mapObject.homeposition;
+	var visits = mapObject.visits;
+	var distances = mapObject.distances;
+	//var totalDistance = mapObject.totalDistance;
 
 	var objects = [];
 	var homeMaterial;
@@ -22,7 +19,11 @@ var EarthMapModel = function (user) {
 	this.EARTH_RADIUS = 0.5;
 
 	var tmpObject;
+	var tmpObjectIndex;
 
+	this.sendToDb = function() {
+		sendMapObjectUpdate(userObject);
+	}
 
 
 	this.setUserId = function(id) {
@@ -36,12 +37,12 @@ var EarthMapModel = function (user) {
 
 
 	this.setHomePosition = function(pos) {
-		homePosition = pos;
+		mapObject.homeposition = pos;
 		notifyObservers("homePositionUpdate");
 	}
 
 	this.getHomePosition = function() {
-		return homePosition;
+		return mapObject.homeposition;
 	}
 
 
@@ -55,9 +56,10 @@ var EarthMapModel = function (user) {
 	}
 
 	this.addVisit = function(placeName, visit) {
+		var coords = {x: visit.x, y: visit.y, z: visit.z};
 			visits.push({
 				name: placeName,
-				visit: visit
+				visit: coords
 			});
 		//visits.push(visit);
 		notifyObservers("addVisit");
@@ -66,7 +68,10 @@ var EarthMapModel = function (user) {
 	this.removeVisit = function(position) {
 		if ( ~position ) {
 			tmpObject = visits.splice(position, 1);
+			tmpObjectIndex = position;
 		}
+		var tmp = distances.splice(position-1, 1);
+		mapObject.totalDistance = mapObject.totalDistance - tmp;
 		
 		notifyObservers("removeVisit");
 
@@ -87,14 +92,13 @@ var EarthMapModel = function (user) {
 		notifyObservers("addDistance");
 	}
 
-
 	this.setTotalDistance = function(newDistance) {
-		totalDistance = newDistance;
+		mapObject.totalDistance = newDistance;
 		notifyObservers("totalDistanceUpdate");
 	}
 
 	this.getTotalDistance = function() {
-		return totalDistance;
+		return mapObject.totalDistance;
 	}
 
 
@@ -128,6 +132,10 @@ var EarthMapModel = function (user) {
 
 	this.getTmpObject = function() {
 		return tmpObject;
+	}
+
+	this.getTmpObjectIndex = function () {
+		return tmpObjectIndex;
 	}
 
 

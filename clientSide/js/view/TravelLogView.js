@@ -41,6 +41,8 @@ var TravelLogView = function(container, model) {
 	var projector;
 	var controls;
 
+	var tmp = $('#visits');
+
 	this.canvas = container.find('#canvas');
 	this.info = container.find("#info");
 
@@ -48,7 +50,13 @@ var TravelLogView = function(container, model) {
 	init();
 	animate();
 
+	this.disableControls = function() {
+		controls.enabled = false;
+	}
 
+	this.enableControls = function() {
+		controls.enabled = true;
+	}
 
 	this.update = function(arg){
 		if (arg == "addToScene") {
@@ -61,9 +69,24 @@ var TravelLogView = function(container, model) {
 	}
 
 	function removeVisit() {
-		var tmp = model.getTmpObject();
-		var lkj = tmp[0].visit;
-		scene.remove(lkj);
+		var tmp = model.getTmpObjectIndex() + 3;
+		//var lkj = tmp[0].visit;
+
+		// var posX = object.position.x = 
+		// var posY = 
+		// var posZ = 
+
+		//var obj, i;
+		 var obj = scene.children[tmp];
+		// for (i = scene.children.length - 1; i >= 3 ; i -- ) {
+		//     obj = scene.children[ i ];
+		//     if ( obj !== plane && obj !== camera) {
+		//         scene.remove(obj);
+		//     }
+		// }
+
+		scene.remove(obj);
+		updateInfo();
 	}
 
 	function updateInfo() {
@@ -77,10 +100,10 @@ var TravelLogView = function(container, model) {
 		distances = model.getDistances();
 		totalDistance = model.getTotalDistance();
 
-			var tmp = $('#visits');
-			tmp.find('option').remove()
+			
+			tmp.find('option').remove();
 		for (var i = 0;i < visits.length; i++) {
-			tmp.append('<option value=1>' + visits[i].name + '</option>')
+			tmp.append('<option value=1>' + visits[i].name + '</option>');
 		};
 
 
@@ -99,21 +122,6 @@ var TravelLogView = function(container, model) {
 		
 		projector = new THREE.Projector();
 
-		var light = new THREE.AmbientLight(0xffffff);
-
-		// Configurigation
-		light.position.set(-5, -5, 10).normalize;
-		scene.add(light);
-
-		// Add old visits
-		for (var i = 0; i < visits.length; i++) {
-			var pin = visits[i];
-			scene.add(pin.visit);
-		};
-
-		camera.position.z = 2;
-
-		//var PI2 = Math.PI * 2;
 		pinMaterial = new THREE.SpriteMaterial( {
 			color: 'red'
 		} );
@@ -122,8 +130,50 @@ var TravelLogView = function(container, model) {
 			color: 0x9933FF
 		} );
 
-		//map = createMap(40, 40);
+
+		//var light = new THREE.AmbientLight(0xffffff);
+		var light = new THREE.DirectionalLight(0xffffff);
+
+		// Configurigation
+		light.position.set(-5, -5, 10).normalize;
+		scene.add(light);
+
 		earth = createEarth();
+
+		var coords;
+		var vector;
+		var pin;
+		var material;
+		var pinSize = .001;
+		// Add old visits
+		for (var i = 0; i < visits.length; i++) {
+			if (i === 0) {
+				material = homeMaterial;
+			} else {
+				material = pinMaterial;
+			}
+			coords = visits[i].visit;
+			vector = new THREE.Vector3(coords.x, coords.y, coords.z );
+
+			pin = new THREE.Sprite(material);
+
+			pin.position = vector;
+			pin.scale.x = pin.scale.y = pin.scale.y = 10*pinSize;
+
+			//var pin = visits[i];
+			scene.add(pin);
+
+			tmp.append('<option value=1>' + visits[i].name + '</option>');
+		
+		};
+
+		camera.position.z = 2;
+
+		//var PI2 = Math.PI * 2;
+
+
+		//map = createMap(40, 40);
+	
 
 		// Configure renderer
 		renderer.setSize(width, height);
