@@ -70,20 +70,8 @@ var TravelLogView = function(container, model) {
 
 	function removeVisit() {
 		var tmp = model.getTmpObjectIndex() + 3;
-		//var lkj = tmp[0].visit;
 
-		// var posX = object.position.x = 
-		// var posY = 
-		// var posZ = 
-
-		//var obj, i;
-		 var obj = scene.children[tmp];
-		// for (i = scene.children.length - 1; i >= 3 ; i -- ) {
-		//     obj = scene.children[ i ];
-		//     if ( obj !== plane && obj !== camera) {
-		//         scene.remove(obj);
-		//     }
-		// }
+		var obj = scene.children[tmp];
 
 		scene.remove(obj);
 		updateInfo();
@@ -99,7 +87,6 @@ var TravelLogView = function(container, model) {
 		visits = model.getVisits();
 		distances = model.getDistances();
 		totalDistance = model.getTotalDistance();
-
 			
 			tmp.find('option').remove();
 		for (var i = 0;i < visits.length; i++) {
@@ -131,11 +118,14 @@ var TravelLogView = function(container, model) {
 		} );
 
 
-		//var light = new THREE.AmbientLight(0xffffff);
-		var light = new THREE.DirectionalLight(0xffffff);
+		
+		var light = new THREE.DirectionalLight(0xffffff, 1);
+
 
 		// Configurigation
-		light.position.set(-5, -5, 10).normalize;
+		light.position = camera.position;
+		light.position.normalize();
+		//light.position.set(-5, -5, 10).normalize;
 		scene.add(light);
 
 		earth = createEarth();
@@ -193,8 +183,8 @@ var TravelLogView = function(container, model) {
 			map: THREE.ImageUtils.loadTexture('../resources/earthmap1k.jpg'),
 			bumpMap : THREE.ImageUtils.loadTexture('../resources/earthbump1k.jpg'),
 			bumpScale : 0.05,
-			specularMap : THREE.ImageUtils.loadTexture('../resources/earthspec1k.jpg'),
-			specular : new THREE.Color('grey')
+		//	specularMap : THREE.ImageUtils.loadTexture('../resources/earthspec1k.jpg'),
+		//	specular : new THREE.Color('grey')
 		} );
 
 		var earth = new THREE.Mesh(sphere, texture);
