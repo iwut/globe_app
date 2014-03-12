@@ -4,16 +4,16 @@ var EarthMapModel = function (user) {
 	var userId;
 
 
-	// var homePosition = user.homePosition;
-	// var visits = user.;
+	var homePosition = user.homeposition;
+	var visits = user.visits;
+	var distances = user.distances;
+	var totalDistance = user.totalDistance;
+
+
+	// var homePosition = null;
+	// var visits = [];
 	// var distances = [];
-	// var totalDistance = 0;	
-
-
-	var homePosition = null;
-	var visits = [];
-	var distances = [];
-	var totalDistance = 0;
+	// var totalDistance = 0;
 	
 
 	var objects = [];
