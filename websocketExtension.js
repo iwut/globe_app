@@ -7,23 +7,26 @@ module.exports = {
 
 handleOnMessage = function(object,ws){
     if(object.type=="login"){
+      console.log("User login: " + object.username);
       validateLoginWrapper(object, function(loginObj){
         ws.send(JSON.stringify(loginObj));
       });
     }else if(object.type=="signup"){
+      console.log("User signup: " + object.username);
       signupWrapper(object, function(signupResponse){
         ws.send(JSON.stringify(signupResponse));
       });
     }else if(object.type=="setobj"){
       updateWrapper(object, function(){
-        console.log('received update.');
+        console.log('User update, sessid: ' + object.sessionid);
       });
     }else if(object.type=="getobj"){
       getterWrapper(object, function(signupResponse){
         ws.send(JSON.stringify(signupResponse));
+        console.log("User load, sessid: " + object.sessionid);
       });
     }else{
-      console.log("received redundant message");
+      console.log("Received unknown message.");
     }
   };
 
@@ -77,9 +80,9 @@ handleOnMessage = function(object,ws){
     wss.on('connection', function(ws) {
       
       ws.on('message', function(message) {
-        console.log('y: ' + message);
+        //console.log('y: ' + message);
         var obj = JSON.parse(message);
-        console.log('JSON- type: ' + obj.objtype + ', message: ' + obj.objmess);
+        //console.log('JSON- type: ' + obj.objtype + ', message: ' + obj.objmess);
         handleOnMessage(obj,ws);
       });
       //ws.send('hello from server');

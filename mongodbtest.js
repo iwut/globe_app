@@ -179,7 +179,7 @@ userobject{
 	takes session id parameter and returns result into callback function
 	*/
 		getMapResources : function(sessionidvar, callback){
-			console.log("get Map Resources , " + sessionidvar.sessionid);
+			//console.log("get Map Resources , " + sessionidvar.sessionid);
 			var mongoC = this.MongoClient;
 			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
   				if(err) { return console.dir(err); }
@@ -187,13 +187,13 @@ userobject{
   				var collection = db.collection('userdata');
     			collection.findOne({sessionid:sessionidvar.sessionid}, function(err, item) {	
     				if(typeof item === 'undefined'|| item==null){
-    					console.log('item!: '+item + ".... err: " + err);
+    					//console.log('item!: '+item + ".... err: " + err);
     					item = {};
    						//console.log("'" + object.username + "/" + object.password + "' was undefined");
 						item.username = 'null';
 						//insertuser(mongoC,createuser(object.username, object.password),function(){});
    					}else{
-   						console.log("found shit! : " + JSON.stringify(item));
+   						//console.log("found shit! : " + JSON.stringify(item));
    					}
     				//set new sessionid into the db
     				callback(item);
@@ -333,7 +333,7 @@ userobject{
 			this.getPins(
 				function(pinArray){
 					for (var i = 0; i < pinArray.length; i++) {
-  						console.log("found pin: " + pinArray[i].string);
+  						//console.log("found pin: " + pinArray[i].string);
 					}
 				}
 			)
