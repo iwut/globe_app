@@ -72,7 +72,7 @@ userobject{
 				this.password = password1;
 				this.email = email1;
 				this.telephone = telephone1;
-				this.sessionid = Math.floor(Math.random() * 100000000000000) + 1;
+				this.sessionid = ""+Math.floor(Math.random() * 100000000000000) + 1;
 				this.pinobject = new mapdata();
 			};
 
@@ -187,11 +187,14 @@ userobject{
   				var collection = db.collection('userdata');
     			collection.findOne({sessionid:sessionidvar.sessionid}, function(err, item) {	
     				if(typeof item === 'undefined'|| item==null){
+    					console.log('item!: '+item + ".... err: " + err);
     					item = {};
    						//console.log("'" + object.username + "/" + object.password + "' was undefined");
 						item.username = 'null';
 						//insertuser(mongoC,createuser(object.username, object.password),function(){});
-   					};
+   					}else{
+   						console.log("found shit! : " + JSON.stringify(item));
+   					}
     				//set new sessionid into the db
     				callback(item);
     			});
@@ -232,6 +235,8 @@ userobject{
 							userobject.email,
 							userobject.telephone);
 
+			console.log('Trying to create: ' + JSON.stringify(newuser));
+
 			mongoC.connect("mongodb://localhost:27017/exampleDb", function(err, db) {
   				if(err) { return console.dir(err); }
 
@@ -243,6 +248,7 @@ userobject{
 						//item.username = 'null';
 						console.log("no user existed! :)");
 						collection.insert(newuser, {w:1}, function(err, result){
+								console.log("insert error: "+err);
 								callback({exists:false});
 						});
 

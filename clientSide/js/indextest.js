@@ -1,9 +1,22 @@
 
+//var href = window.location.href;
+//    var url = $.url(href);
+    
+
+    //var sessionid = url.param('sessionid');
 
 
-var updateinterval = 1*10*1000;
+    //var search = $(location).attr('href');
+    //var href = window.location.href;
+    //var url = $.url(href);
+    
+
+var sessionid = location.search.split('sessionid=')[1];
+alert(sessionid);
+
+var updateinterval = 1*60*1000;
 var userobject;
-var sessionid = 97601412818768;
+//var sessionid = 97601412818768;
 
 
 callWebSocket(
