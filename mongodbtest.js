@@ -61,9 +61,9 @@ userobject{
 
 		createuserdata : function(username,password,email,telephone){
 			var mapdata = function(){
-				this.homeposition = {};
-				this.visits = {};
-				this.distances = {};
+				this.homeposition = null;
+				this.visits = [];
+				this.distances = [];
 				this.totalDistance = 0;
 			};
 

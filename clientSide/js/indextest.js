@@ -1,7 +1,9 @@
 
+
+
 var updateinterval = 1*10*1000;
 var userobject;
-var sessionid = 1;
+var sessionid = 97601412818768;
 
 
 callWebSocket(
