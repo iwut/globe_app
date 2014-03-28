@@ -9,13 +9,14 @@ module.exports = {
 				this.visits = [];
 				this.distances = [];
 				this.totalDistance = 0;
+                this.travelPaths = [{name: "First path!", color: 'red', visits: []}];
 			};
 
 			var scrapdata = function(){
 				this.bumpMapString = "earthbump1k.jpg";
 				this.specularMapString = "earthspec1k.jpg";
 				this.mapString = "earthmap1k.jpg";
-				this.backgroundColor = "#27408B";
+				this.backgroundColor = "black";
 
 			}
 

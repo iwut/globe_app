@@ -10,7 +10,6 @@ var TravelLogView = function(container, model) {
 	var NEAR = 0.1;
 	var FAR = 10000;
 
-
 	var projector;
 	var mesh;
 	var controls;
@@ -24,6 +23,10 @@ var TravelLogView = function(container, model) {
 	// Initiate values
 	var homePosition = model.getHomePosition();
 	var visits = model.getVisits();
+
+    var travelPaths = model.getTravelPaths();
+    var currentPath = model.getCurrentPath();
+
 	var distances = model.getDistances();
 	var totalDistance = model.getTotalDistance();
 
@@ -41,13 +44,16 @@ var TravelLogView = function(container, model) {
 	var projector;
 	var controls;
 
+	
+
 	var tmp = $('#visits');
+	var paths = $('#paths');
 
 	this.canvas = container.find('#canvas');
 	this.info = container.find("#info");
 
 
-	init();
+	init()
 	animate();
 
 	this.disableControls = function() {
@@ -65,7 +71,18 @@ var TravelLogView = function(container, model) {
 			updateInfo();
 		} else if (arg == "removeVisit") {
 			removeVisit();
+		} else if (arg == "addPath") {
+			updatePaths();
+		} else if (arg == "currentPathUpdate") {
+			currentPath = model.getCurrentPath();
 		}
+	}
+
+	function updatePaths() {
+		travelPaths = model.getTravelPaths();
+	    paths.append('<option value=1>' + travelPaths[travelPaths.length - 1].name + '</option>');
+
+
 	}
 
 	function removeVisit() {
@@ -130,32 +147,10 @@ var TravelLogView = function(container, model) {
 
 		earth = createEarth();
 
-		var coords;
-		var vector;
-		var pin;
-		var material;
-		var pinSize = .001;
-		// Add old visits
-		for (var i = 0; i < visits.length; i++) {
-			if (i === 0) {
-				material = homeMaterial;
-			} else {
-				material = pinMaterial;
-			}
-			coords = visits[i].visit;
-			vector = new THREE.Vector3(coords.x, coords.y, coords.z );
+        addOldVisits();
 
-			pin = new THREE.Sprite(material);
-
-			pin.position = vector;
-			pin.scale.x = pin.scale.y = pin.scale.y = 10*pinSize;
-
-			//var pin = visits[i];
-			scene.add(pin);
-
-			tmp.append('<option value=1>' + visits[i].name + '</option>');
-		
-		};
+		var scrapData = model.getScrapData();
+		var bgColor = scrapData.backgroundColor;
 
 		camera.position.z = 2;
 
@@ -167,7 +162,7 @@ var TravelLogView = function(container, model) {
 
 		// Configure renderer
 		renderer.setSize(width, height);
-		renderer.setClearColor('black', 1);
+		renderer.setClearColor(bgColor, 1);
 		this.canvas.appendChild( renderer.domElement );
 
 		render();
@@ -176,6 +171,80 @@ var TravelLogView = function(container, model) {
 		window.addEventListener( 'resize', onWindowResize, false );
 	}
 
+    function addOldVisits() {
+        var coords;
+        var vector;
+        var pin;
+        var pinSize = .001;
+        var travelPath;
+        var color;
+        var name;
+        var visits;
+        var material;
+        var oldCoord = null;
+        for (var i = 0; i < travelPaths.length; i++) {
+            travelPath = travelPaths[i];
+            paths.append('<option value=1>' + travelPaths[i].name + '</option>');
+
+
+            name = travelPath.name;
+            color = travelPath.color;
+            visits = travelPath.visits;
+
+            material = new THREE.SpriteMaterial( {
+                color: color
+            } );
+
+            for (var j = 0; j < visits.length; j++) {
+
+                coords = visits[j].visit;
+
+                if (j > 0) {
+                    drawLine(oldCoord, coords, color);
+                }
+
+                vector = new THREE.Vector3(coords.x, coords.y, coords.z );
+
+                pin = new THREE.Sprite(material);
+
+                pin.position = vector;
+                pin.scale.x = pin.scale.y = pin.scale.y = 10*pinSize;
+
+                //var pin = visits[i];
+                scene.add(pin);
+
+                tmp.append('<option value=1>' + visits[j].name + '</option>');
+
+
+                oldCoord = coords;
+            }
+
+        };
+    }
+
+    function drawLine(oldCoord, coords, color) {
+
+        var geometry = new THREE.Geometry();
+
+
+        for (var scalar = 0.001; scalar < 1; scalar += 0.001) {
+            // var oldVector = new THREE.Vector3(oldPin.position.x, oldPin.position.y, oldPin.position.z);
+            var oldVector = new THREE.Vector3(oldCoord.x, oldCoord.y, oldCoord.z);
+            var newVector = new THREE.Vector3(coords.x, coords.y, coords.z);
+
+            var intersectVector = newVector.sub(oldVector);
+            intersectVector.multiplyScalar(scalar);
+            intersectVector = oldVector.add(intersectVector).normalize().multiplyScalar(1.001*model.EARTH_RADIUS);
+
+            geometry.vertices.push(intersectVector);
+        }
+
+        var lineMaterial = new THREE.LineBasicMaterial({color: color });
+        var line = new THREE.Line(geometry, lineMaterial, THREE.LineStrip);
+        scene.add(line);
+
+    }
+
 	function createEarth() {
 
 		var sphere = new THREE.SphereGeometry(EARTH_RADIUS, 120, 120);
@@ -183,8 +252,9 @@ var TravelLogView = function(container, model) {
 			map: THREE.ImageUtils.loadTexture('../resources/earthmap1k.jpg'),
 			bumpMap : THREE.ImageUtils.loadTexture('../resources/earthbump1k.jpg'),
 			bumpScale : 0.05,
-		//	specularMap : THREE.ImageUtils.loadTexture('../resources/earthspec1k.jpg'),
-		//	specular : new THREE.Color('grey')
+			specularMap : THREE.ImageUtils.loadTexture('../resources/earthspec1k.jpg'),
+			specular : new THREE.Color('grey'),
+			shininess: 8
 		} );
 
 		var earth = new THREE.Mesh(sphere, texture);

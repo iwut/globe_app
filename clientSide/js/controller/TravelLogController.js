@@ -28,32 +28,18 @@ $('#canvas').mousedown(function(event) {
 
 
 
-$("#visits").mouseover(function(){
+$("select").mouseover(function(){
 	view.disableControls();
 });
 
-$("#visits").mouseout(function() {
+$("#paths").change(function(){
+	var index = $('#paths')[0].selectedIndex;
+	model.setCurrentPathByIndex(index);
+});
+
+$("select").mouseout(function() {
 	view.enableControls();
 })
-
-//$("#visit")
-
-// $("#visits").click(function(){
-//     var size = $('#visits option').size();
-//     if(size!=$("#visits").prop('size'))
-//        {
-//        $("#visits").prop('size',size);
-// }
-//     else
-//     {
-//         $("#visits").prop('size',1);
-//     }
-
-// });
-
-
-
-
 
 	$('#delete').click(function () {
 		var index = $('#visits')[0].selectedIndex;
@@ -67,6 +53,23 @@ $("#visits").mouseout(function() {
 		model.sendToDb();
 	});
 
+    $('#addPath').click(function () {
+        var pathName = prompt("Enter name of new path");
+        var color = Math.random() * 0xffffff;
+        var path = {name: pathName, color: color, visits: []};
+        model.addTravelPath(path);
+        model.setCurrentPath(path);
+    });
+
+
+	$('#colorPicker').click(function () {
+		var val = $('#colorPicker').val()+'';
+		alert(val);
+		
+		model.sendToDb();
+	});
+
+
 
 
 function onMouseDown(event) {
@@ -74,9 +77,16 @@ function onMouseDown(event) {
 	//alert($(location.search).attr('href'));
 	
 	//var x = prompt('Enter name of place')
-	
-	var hej = view.canvas;
-	var hoj = view.infoBox;
+    var currentObj = model.getCurrentPath();
+    var currentPath = currentObj.visits;
+    var color = currentObj.color;
+    var oldPin;
+
+    if (currentPath.length == 0) {
+        oldPin = null;
+    } else {
+        oldPin = currentPath[currentPath.length - 1].visit;
+    }
 
 	var camera = view.getCamera();
 	var projector = view.getProjector();
@@ -88,7 +98,7 @@ function onMouseDown(event) {
 	var vector = new THREE.Vector3(posX, posY, 0.5 );
 	projector.unprojectVector( vector, camera );
 
-	var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+	var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize());
 
 	var intersects = raycaster.intersectObject( earth );
 
@@ -101,26 +111,30 @@ function onMouseDown(event) {
 
 		var pinSize = .001;
 
-		var material;
-		if (model.getHomePosition() === null) {
-			//	homeVector = intersect.point;
-			model.setHomePosition(intersect.point);
-				material = homeMaterial;// model.getHomeMaterial();
+        var material = new THREE.SpriteMaterial( {
+            color: color
+        } );
 
-			} else {
-				material = pinMaterial;// model.getPinMaterial();
-				var distance = calculateGreatCircleDistance(model.getHomePosition(), intersect.point);
-				totalDistance += distance;
-				model.setTotalDistance(totalDistance);
+        if (oldPin != null) {
+            var distance = calculateGreatCircleDistance(oldPin, intersect.point);
+            totalDistance += distance;
+            model.setTotalDistance(totalDistance);
 
-			model.addDistance(distance);
-
-		}
+            model.addDistance(distance);
+        }
 
 		var pin = new THREE.Sprite(material);
 
+        if (oldPin != null) {
+            drawLine(oldPin, intersect.point, color);
+        }
+
 		pin.position = intersect.point;
-		model.addVisit(placeName, intersect.point);
+
+		//model.setOldPin(pin);
+
+		model.addToCurrentPath(placeName, intersect.point);
+
 			//visitsPositions.push(pin.position);
 		pin.scale.x = pin.scale.y = pin.scale.z = 10*pinSize;
 		model.addToScene( pin );
@@ -128,6 +142,33 @@ function onMouseDown(event) {
 		model.sendToDb();
 		}
 	}
+
+    function drawLine(oldCoord, newPinVector, color) {
+
+        var geometry = new THREE.Geometry();
+
+
+        for (var scalar = 0.001; scalar < 1; scalar += 0.001) {
+           // var oldVector = new THREE.Vector3(oldPin.position.x, oldPin.position.y, oldPin.position.z);
+            var oldVector = new THREE.Vector3(oldCoord.x, oldCoord.y, oldCoord.z);
+            var newVector = new THREE.Vector3(newPinVector.x, newPinVector.y, newPinVector.z);
+
+            var intersectVector = newVector.sub(oldVector);
+            intersectVector.multiplyScalar(scalar);
+            intersectVector = oldVector.add(intersectVector).normalize().multiplyScalar(1.001*model.EARTH_RADIUS);
+
+          //  pin.position = intersectVector;
+           // pin.scale.x = pin.scale.y = pin.scale.z = 10*pinSize;
+           // model.addToScene( pin );
+
+            geometry.vertices.push(intersectVector);
+        }
+
+        var lineMaterial = new THREE.LineBasicMaterial({color: color});
+        var line = new THREE.Line(geometry, lineMaterial, THREE.LineStrip);
+        model.addToScene(line);
+
+    }
 
 	function calculateGreatCircleDistance(first, second) {
 		var EARTH_RADIUS = model.EARTH_RADIUS;

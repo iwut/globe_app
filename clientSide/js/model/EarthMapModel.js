@@ -4,6 +4,8 @@ var EarthMapModel = function (user, updatefunc) {
 	var sendMapObjectUpdate = updatefunc;
 	var userObject = user;
 
+	var scrapData = user.extra;
+
 	//sendToDbTest();
 
 	var mapObject = userObject.pinobject;
@@ -13,6 +15,17 @@ var EarthMapModel = function (user, updatefunc) {
 	var distances = mapObject.distances;
 	//var totalDistance = mapObject.totalDistance;
 
+    var travelPaths = mapObject.travelPaths;
+
+    var currentTravelPath = travelPaths[travelPaths.length - 1];
+
+    //if (travelPaths.length === 0) {
+      //  currentTravelPath = null;
+    //} else {
+    //    currentTravelPath = travelPaths[travelPaths.length - 1].visits;
+
+    //}
+
 	var objects = [];
 	var homeMaterial;
 	var pinMaterial;
@@ -20,6 +33,67 @@ var EarthMapModel = function (user, updatefunc) {
 
 	var tmpObject;
 	var tmpObjectIndex;
+
+	var oldPin = null;
+
+    this.getCurrentPath = function() {
+        return currentTravelPath;
+    }
+
+    this.setCurrentPath = function(path) {
+        currentTravelPath = path;
+        notifyObservers("currentPathUpdate");
+    }
+
+    this.setCurrentPathByIndex = function(index) {
+    	currentTravelPath = travelPaths[index];
+    	notifyObservers("currentPathUpdate");
+    }
+
+    this.addToCurrentPath = function(placeName, visit) {
+        var coords = {x: visit.x, y: visit.y, z: visit.z};
+        currentTravelPath.visits.push({
+            name: placeName,
+            visit: coords
+        });
+        //visits.push(visit);
+        notifyObservers("addVisit");
+    }
+
+    this.removeFromCurrentPath = function(position) {
+        if ( ~position ) {
+            tmpObject = currentTravelPath.visits.splice(position, 1);
+            tmpObjectIndex = position;
+        }
+        var tmp = distances.splice(position-1, 1);
+        mapObject.totalDistance = mapObject.totalDistance - tmp;
+
+        notifyObservers("removeVisit");
+
+    }
+
+    this.getTravelPaths = function() {
+        return travelPaths;
+    }
+
+    this.addTravelPath = function(path) {
+       // var coords = {x: visit.x, y: visit.y, z: visit.z};
+        travelPaths.push(path);
+        //visits.push(visit);
+        notifyObservers("addPath");
+    }
+
+	this.setOldPin = function(pin) {
+		oldPin = pin;
+	}
+
+	this.getOldPin = function() {
+		return oldPin;
+	}
+
+	this.getScrapData = function() {
+		return scrapData;
+	}
 
 	this.sendToDb = function() {
 		sendMapObjectUpdate(userObject);

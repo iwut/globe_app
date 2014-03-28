@@ -20,6 +20,15 @@
 	
 }
 
+.col-12-1 {
+	height: 700px;
+}
+
+#login-row {
+	background-size: contain;
+	width: 100%;
+}
+
 
 #totalDistance {
 	margin-top: 2px;
@@ -51,17 +60,17 @@
 
 
 #info select {
-	line-height: 15%;
-	float: left;
+    line-height: 15%;
+    float: left;
     display: inline-block;
     padding: 4px 3px 5px 5px;
-    width: 75%;
+    width: 90%;
     outline: none;
     color: #74646e;
     border: 1px solid #C8BFC4;
     border-radius: 4px;
     box-shadow: inset 1px 1px 2px #ddd8dc;
-    background-color: #fff;        
+    background-color: #fff;
     z-index: 200;
     pointer-events: auto;
 }
@@ -69,7 +78,13 @@
 #delete {
 	
 	float: left;
+	width: 90%;
 
+}
+#addPath {
+
+    float: left;
+    width: 90%;
 
 }
 
