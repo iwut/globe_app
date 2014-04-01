@@ -25,6 +25,7 @@ var TravelLogView = function(container, model) {
 	var visits = model.getVisits();
 
     var travelPaths = model.getTravelPaths();
+
     var currentPath = model.getCurrentPath();
 
 	var distances = model.getDistances();
@@ -46,7 +47,7 @@ var TravelLogView = function(container, model) {
 
 	
 
-	var tmp = $('#visits');
+	var nodes = $('#visits');
 	var paths = $('#paths');
 
 	this.canvas = container.find('#canvas');
@@ -67,15 +68,26 @@ var TravelLogView = function(container, model) {
 	this.update = function(arg){
 		if (arg == "addToScene") {
 			addToScene();
-		} else if (arg == "totalDistanceUpdate") {
-			updateInfo();
+            populateNodesSelect();
 		} else if (arg == "removeVisit") {
-			removeVisit();
+			clearScene();
+            populateNodesSelect();
+            addOldVisits();
+
 		} else if (arg == "addPath") {
+            populatePaths();
 			updatePaths();
-		} else if (arg == "currentPathUpdate") {
+
+		} else if (arg == "currentPathUpdateByIndex") {
 			currentPath = model.getCurrentPath();
-		}
+            populateNodesSelect();
+
+		} else if (arg == "currentPathUpdateByAddNew") {
+			$('#paths :nth-child(' + model.getTravelPaths().length + ')').prop('selected', true);
+            populateNodesSelect();
+
+        }
+        calculateTotalDistanceForCurrentPath();
 	}
 
 	function updatePaths() {
@@ -85,34 +97,70 @@ var TravelLogView = function(container, model) {
 
 	}
 
-	function removeVisit() {
-		var tmp = model.getTmpObjectIndex() + 3;
+	function clearScene() {
+		//var tmp = model.getTmpObjectIndex() + 3;
 
-		var obj = scene.children[tmp];
-
-		scene.remove(obj);
+        var length = scene.children.length;
+        for (var i=length; i >= 3; i--){
+            var obj = scene.children[i];
+            scene.remove(obj);
+        }
 		updateInfo();
 	}
 
-	function updateInfo() {
-		$('#totalDistance').text('Total distance traveled: ' + Math.round(100* model.getTotalDistance() * convertDistance)/100 + ' km.');
+	function updateInfo(totalDistance) {
+		$('#totalDistance').text('Travel distance: ' + Math.round(100* totalDistance * convertDistance)/100 + ' km.');
 	}
+
+    function calculateTotalDistanceForCurrentPath() {
+        currentPath = model.getCurrentPath();
+
+        var visits = currentPath.visits;
+
+        var totalDistance = 0;
+        var previous;
+        var current;
+        for (var i = 1; i < visits.length; i++) {
+            current = visits[i].visit;
+            previous = visits[i-1].visit;
+
+            totalDistance += calculateGreatCircleDistance(current, previous);
+
+        }
+
+        updateInfo(totalDistance);
+    }
+
+    function calculateGreatCircleDistance(first, second) {
+        var EARTH_RADIUS = model.EARTH_RADIUS;
+        var deltaX = first.x - second.x;
+        var deltaY = first.y - second.y;
+        var deltaZ = first.z - second.z;
+        var xSquared = deltaX * deltaX;
+        var ySquared = deltaY * deltaY;
+        var zSquared = deltaZ * deltaZ;
+
+        var w = Math.sqrt(xSquared + ySquared + zSquared);
+
+        var arc = 2*EARTH_RADIUS*Math.asin(w/(2*EARTH_RADIUS));
+
+        return arc;
+    }
+
+
 
 	function addToScene() {
 		var object = model.getLastAddedObject();
 		scene.add(object);
-		visits = model.getVisits();
-		distances = model.getDistances();
-		totalDistance = model.getTotalDistance();
-			
-			tmp.find('option').remove();
-		for (var i = 0;i < visits.length; i++) {
-			tmp.append('<option value=1>' + visits[i].name + '</option>');
-		};
-
-
-		
 	}
+
+    function populateNodesSelect() {
+        currentPath = model.getCurrentPath();
+        nodes.find('option').remove();
+        for (var i = 0;i < currentPath.visits.length; i++) {
+            nodes.append('<option value="1">' + currentPath.visits[i].name + '</option>');
+        };
+    }
 
 	function init() {
 		// Initiation
@@ -147,7 +195,10 @@ var TravelLogView = function(container, model) {
 
 		earth = createEarth();
 
+        populateNodesSelect();
         addOldVisits();
+        populatePaths();
+        calculateTotalDistanceForCurrentPath();
 
 		var scrapData = model.getScrapData();
 		var bgColor = scrapData.backgroundColor;
@@ -171,6 +222,15 @@ var TravelLogView = function(container, model) {
 		window.addEventListener( 'resize', onWindowResize, false );
 	}
 
+    function populatePaths() {
+        var travelPath;
+        paths.find('option').remove();
+        for (var i = 0; i < travelPaths.length; i++) {
+            travelPath = travelPaths[i];
+            paths.append('<option value=1>' + travelPaths[i].name + '</option>');
+        }
+    }
+
     function addOldVisits() {
         var coords;
         var vector;
@@ -182,10 +242,11 @@ var TravelLogView = function(container, model) {
         var visits;
         var material;
         var oldCoord = null;
-        for (var i = 0; i < travelPaths.length; i++) {
-            travelPath = travelPaths[i];
-            paths.append('<option value=1>' + travelPaths[i].name + '</option>');
 
+        for (var i = 0; i < travelPaths.length; i++) {
+
+
+            travelPath = travelPaths[i];
 
             name = travelPath.name;
             color = travelPath.color;
@@ -213,7 +274,7 @@ var TravelLogView = function(container, model) {
                 //var pin = visits[i];
                 scene.add(pin);
 
-                tmp.append('<option value=1>' + visits[j].name + '</option>');
+                //nodes.append('<option value=1>' + visits[j].name + '</option>');
 
 
                 oldCoord = coords;
@@ -296,7 +357,6 @@ var TravelLogView = function(container, model) {
 	this.getEarth = function() {
 		return earth;
 	}
-
 
 
 }

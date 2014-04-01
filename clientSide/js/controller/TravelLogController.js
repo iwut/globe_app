@@ -43,18 +43,17 @@ $("select").mouseout(function() {
 
 	$('#delete').click(function () {
 		var index = $('#visits')[0].selectedIndex;
-		if (index == 0) {
-			alert("Cannot delete hometown");
-			return;
-		}
 		$('#visits :selected').remove(); 
-		model.removeVisit(index);
+		model.removeFromCurrentPath(index);
 		//model.removeDistance(index);
 		model.sendToDb();
 	});
 
     $('#addPath').click(function () {
         var pathName = prompt("Enter name of new path");
+        if (pathName == null) {
+            return;
+        }
         var color = Math.random() * 0xffffff;
         var path = {name: pathName, color: color, visits: []};
         model.addTravelPath(path);
@@ -115,14 +114,6 @@ function onMouseDown(event) {
             color: color
         } );
 
-        if (oldPin != null) {
-            var distance = calculateGreatCircleDistance(oldPin, intersect.point);
-            totalDistance += distance;
-            model.setTotalDistance(totalDistance);
-
-            model.addDistance(distance);
-        }
-
 		var pin = new THREE.Sprite(material);
 
         if (oldPin != null) {
@@ -138,6 +129,7 @@ function onMouseDown(event) {
 			//visitsPositions.push(pin.position);
 		pin.scale.x = pin.scale.y = pin.scale.z = 10*pinSize;
 		model.addToScene( pin );
+       // model.setTotalDistance();
 
 		model.sendToDb();
 		}

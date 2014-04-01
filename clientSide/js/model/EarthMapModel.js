@@ -17,7 +17,7 @@ var EarthMapModel = function (user, updatefunc) {
 
     var travelPaths = mapObject.travelPaths;
 
-    var currentTravelPath = travelPaths[travelPaths.length - 1];
+    var currentTravelPath = travelPaths[0];
 
     //if (travelPaths.length === 0) {
       //  currentTravelPath = null;
@@ -42,12 +42,12 @@ var EarthMapModel = function (user, updatefunc) {
 
     this.setCurrentPath = function(path) {
         currentTravelPath = path;
-        notifyObservers("currentPathUpdate");
+        notifyObservers("currentPathUpdateByAddNew");
     }
 
     this.setCurrentPathByIndex = function(index) {
     	currentTravelPath = travelPaths[index];
-    	notifyObservers("currentPathUpdate");
+    	notifyObservers("currentPathUpdateByIndex");
     }
 
     this.addToCurrentPath = function(placeName, visit) {
@@ -188,57 +188,17 @@ var EarthMapModel = function (user, updatefunc) {
 		return objects[i-1];
 	}
 
-
-
-	this.setOjects = function(arr) {
-		objects = arr;
-		notifyObservers("objectsUpdate");
-	}
-
 	this.getObjects = function() {
 		return objects;
 	}
 
-	this.addToObjects = function(object) {
-		objects.push(object);
-		notifyObservers("addObject");
-	}
 
-	this.getTmpObject = function() {
-		return tmpObject;
-	}
-
-	this.getTmpObjectIndex = function () {
-		return tmpObjectIndex;
-	}
-
-
-	var setHomeMaterial = function(arg) {
-		homeMaterial = arg;
-		notifyObservers('homeMaterialUpdate');
-	}
-
-	var getHomeMaterial = function() {
-		return homeMaterial;
-	}
-
-
-	var setPinMaterial = function(arg) {
-		pinMaterial = arg;
-		notifyObservers('pinMaterialUpdate');
-	}
-
-	var getPinMaterial = function() {
-		return pinMaterial;
-	}
-
-	
 
 
 
 
 	/******************************
-		Observables handling
+		Observers handling
 	******************************/
 
 
